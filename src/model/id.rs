@@ -83,52 +83,136 @@ macro_rules! id_u64 {
                     id.0 as i64
                 }
             }
+
+            #[cfg(feature = "diesel")]
+            impl<DB> diesel::serialize::ToSql<diesel::sql_types::Integer, DB> for $name
+            where
+                DB: diesel::backend::Backend,
+                i64: diesel::serialize::ToSql<diesel::sql_types::Integer, DB>,
+            {
+                fn to_sql<W: std::io::Write>(&self, out: &mut diesel::serialize::Output<'_, W, DB>) -> diesel::serialize::Result {
+                    (self.0 as i64).to_sql(out)
+                }
+            }
+
+            #[cfg(feature = "diesel")]
+            impl<DB> diesel::deserialize::FromSql<diesel::sql_types::Integer, DB> for $name
+            where
+                DB: diesel::backend::Backend,
+                i64: diesel::deserialize::FromSql<diesel::sql_types::Integer, DB>,
+            {
+                fn from_sql(bytes: Option<&DB::RawValue>) -> diesel::deserialize::Result<Self> {
+                    Ok($name(i64::from_sql(bytes)? as u64))
+                }
+            }
+
+            #[cfg(feature = "diesel")]
+            impl<DB> diesel::serialize::ToSql<diesel::sql_types::BigInt, DB> for $name
+            where
+                DB: diesel::backend::Backend,
+                i64: diesel::serialize::ToSql<diesel::sql_types::BigInt, DB>,
+            {
+                fn to_sql<W: std::io::Write>(&self, out: &mut diesel::serialize::Output<'_, W, DB>) -> diesel::serialize::Result {
+                    (self.0 as i64).to_sql(out)
+                }
+            }
+
+            #[cfg(feature = "diesel")]
+            impl<DB> diesel::deserialize::FromSql<diesel::sql_types::BigInt, DB> for $name
+            where
+                DB: diesel::backend::Backend,
+                i64: diesel::deserialize::FromSql<diesel::sql_types::BigInt, DB>,
+            {
+                fn from_sql(bytes: Option<&DB::RawValue>) -> diesel::deserialize::Result<Self> {
+                    Ok($name(i64::from_sql(bytes)? as u64))
+                }
+            }
+
+            #[cfg(feature = "diesel")]
+            impl<ST, DB> diesel::query_source::Queryable<ST, DB> for $name
+            where
+                i64: diesel::types::FromSqlRow<ST, DB>,
+                DB: diesel::backend::Backend,
+                DB: diesel::types::HasSqlType<ST>,
+            {
+                type Row = i64;
+
+                fn build(row: Self::Row) -> Self {
+                    $name(row as u64)
+                }
+            }
+
         )*
     }
 }
 
+#[cfg(feature = "diesel")]
+use diesel::AsExpression;
+
 /// An identifier for an Application.
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct ApplicationId(pub u64);
 
 /// An identifier for a Channel
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct ChannelId(pub u64);
 
 /// An identifier for an Emoji
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct EmojiId(pub u64);
 
 /// An identifier for a Guild
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct GuildId(pub u64);
 
 /// An identifier for an Integration
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct IntegrationId(pub u64);
 
 /// An identifier for a Message
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct MessageId(pub u64);
 
 /// An identifier for a Role
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct RoleId(pub u64);
 
 /// An identifier for a User
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct UserId(pub u64);
 
 /// An identifier for a [`Webhook`](../webhook/struct.Webhook.html).
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct WebhookId(pub u64);
 
 /// An identifier for an audit log entry.
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct AuditLogEntryId(pub u64);
 
 /// An identifier for an attachment.
 #[derive(Copy, Clone, Default, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[cfg_attr(feature = "diesel", derive(AsExpression))]
+#[cfg_attr(feature = "diesel", sql_type = "diesel::sql_types::BigInt")]
 pub struct AttachmentId(u64);
 
 id_u64! {
